@@ -1,0 +1,10 @@
+Desenhar o mapa
+Colocar o pacman
+Movimentar o pacman
+Colocar as "comidas"
+"comer" as "comidas"
+Colocar os fantasmas
+Movimentar um fantasma
+Movimentar todos os fantasmas
+Controlador de vidas
+Pontuação
