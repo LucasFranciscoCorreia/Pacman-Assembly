@@ -370,12 +370,190 @@ cor:		.word 0x0000FF
 	colocar_comida(0x10011430, 0x10011430)
 	
 .end_macro
+
+.macro pintar_linha(%inicio, %fim, %cor)
+	add $a0, $zero, %inicio
+	add $a1, $zero, %fim
+	addi $a2, $zero, %cor
+	pintar:
+		bgt $a0, $a1, parar_linha
+		sw $a2, 0($a0)
+		addi $a0, $a0, 4
+		j pintar
+	parar_linha:	
+.end_macro
+
+.macro sete_segmentos(%endereco, %bits)
+	addi $a0, $zero, %endereco
+	add $a1, $zero, %bits
+	
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg2
+	addi $t0, $a0, 512
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	
+	seg2:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg3
+	addi $t0, $t0, 512
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	
+	seg3:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg4
+	addi $t0, $zero, %endereco
+	addi $t0, $t0, 0x00000214
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+		
+	seg4:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg5
+	addi $t0, $t0, 512
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	pintar_linha($t0, $t0, 0xffffffff)
+	addi $t0, $t0, 256
+	
+	seg5:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg6
+	addi $t0, $zero, %endereco
+	addi $t0, $t0, 0x00000104
+	addi $t1, $t0, 0x0c
+	pintar_linha($t0, $t1, 0xffffffff)
+	
+	seg6:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, seg7
+	addi $t0 $t0, 0x00000500
+	addi $t1, $t0, 0x0c
+	pintar_linha($t0, $t1, 0xffffffff)
+	
+	seg7:
+	andi $a2, $a1, 1
+	srl $a1, $a1, 1
+	beqz $a2, end
+	addi $t0 $t0, 0x00000500
+	addi $t1, $t0, 0x0c
+	pintar_linha($t0, $t1, 0xffffffff)
+	
+	end:
+	
+.end_macro
+
+.macro letreiro(%valor)
+	add $a0, $zero, %valor
+	addi $t2, $zero, 0x000003e8
+	div $a0, $t2
+	mfhi $t2
+	jal get_bits
+	sete_segmentos(0x10010278, $t2)
+	mflo $a0
+	addi $t2, $zero, 0x064
+	div $a0, $t2
+	mfhi $t2
+	jal get_bits
+	sete_segmentos(0x10010298, $t2)
+	mflo $a0
+	addi $t2, $zero, 0x0a
+	div $a0, $t2
+	mfhi $t2
+	jal get_bits
+	sete_segmentos(0x100102b8, $t2)
+	mflo $t1
+	jal get_bits
+	sete_segmentos(0x100102d8, $t2)
+	j exit
+	get_bits:
+		case_0:
+		bne $t2, 0, case_1
+		li $t2, 0x005f
+		j end_cases
+		
+		case_1:
+		bne $t2, 1, case_2
+		li $t2, 0x0000
+		j end_cases
+		case_2: 
+		bne $t2, 2, case_3
+		li $t2, 0x0000
+		j end_cases
+		
+		case_3:
+		bne $t2, 3, case_4
+		li $t2, 0x0000
+		j end_cases
+		
+		case_4:
+		bne $t2, 4, case_5
+		li $t2, 0x0000
+		j end_cases
+		
+		case_5:
+		bne $t2, 5, case_6
+		li $t2, 0x0000
+		j end_cases
+		
+		case_6:
+		bne $t2, 6, case_7
+		li $t2, 0x0000
+		j end_cases
+		
+		case_7:
+		bne $t2, 7, case_8
+		li $t2, 0x0000
+		j end_cases
+		
+		case_8:
+		bne $t2, 8, case_9
+		li $a2, 0x0000
+		j end_cases
+		
+		case_9:
+		li $t2, 0x0000
+		j end_cases
+	end_cases:
+	jr $ra
+	exit:
+	
+.end_macro
+
 .text
 	addi $s0, $zero, 0x10011630
-	la $t0, mapa1
+	add $s1, $zero, $zero
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
+	letreiro($s1)
 	do:
 		mover_pacman()
 		j do
