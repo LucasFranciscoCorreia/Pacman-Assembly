@@ -286,10 +286,95 @@ cor:		.word 0x0000FF
 			
 	fim_movimento:
 .end_macro
+
+.macro colocar_comida (%inicio, %fim)
+	addi $a0, $zero, %inicio
+	addi $a1, $zero, %fim
+	addi $a2, $zero, 0xffffffff
+	comida:
+		bgt $a0, $a1, fim_comida
+		sw $a2, 0($a0)
+		addi $a0, $a0, 8
+		j comida
+	fim_comida:
+	
+.end_macro
+
+.macro pintar_comidas
+	colocar_comida(0x10010104, 0x10010124)
+	colocar_comida(0x1001013c, 0x1001015c)
+	colocar_comida(0x10010608, 0x10010658)
+	colocar_comida(0x10010820, 0x10010840)
+	colocar_comida(0x1001094c, 0x1001095c)
+	colocar_comida(0x10011e08, 0x10011e58)
+	colocar_comida(0x10011b04, 0x10011b14)
+	colocar_comida(0x10011618, 0x10011648)
+	colocar_comida(0x10011304, 0x1001131c)
+	colocar_comida(0x10011344, 0x1001135c)
+	colocar_comida(0x10010608, 0x10010658)
+			
+	colocar_comida(0x10010304, 0x10010304)
+	colocar_comida(0x10010504, 0x10010504)
+	colocar_comida(0x10010704, 0x10010704)
+	colocar_comida(0x10010904, 0x10010914)
+	colocar_comida(0x10010324, 0x10010324)
+	colocar_comida(0x10010524, 0x10010524)
+	colocar_comida(0x10010314, 0x10010314)
+	colocar_comida(0x10010514, 0x10010514)
+	colocar_comida(0x10010714, 0x10010714)
+	colocar_comida(0x1001033c, 0x1001033c)
+	colocar_comida(0x1001053c, 0x1001053c)
+	colocar_comida(0x1001034c, 0x1001034c)
+	colocar_comida(0x1001054c, 0x1001054c)
+	colocar_comida(0x1001035c, 0x1001035c)
+	colocar_comida(0x1001055c, 0x1001055c)
+	colocar_comida(0x1001075c, 0x1001075c)
+	colocar_comida(0x1001074c, 0x1001074c)
+	colocar_comida(0x10010b14, 0x10010b14)
+	colocar_comida(0x10010d14, 0x10010d14)
+	colocar_comida(0x10010f14, 0x10010f14)
+	colocar_comida(0x10011114, 0x10011114)
+	colocar_comida(0x10011314, 0x10011314)
+	colocar_comida(0x10011514, 0x10011514)
+	colocar_comida(0x10011714, 0x10011714)
+	colocar_comida(0x10011914, 0x10011914)
+	colocar_comida(0x10011504, 0x10011504)
+	colocar_comida(0x10011608, 0x10011608)
+	colocar_comida(0x10011808, 0x10011808)
+	colocar_comida(0x10011a08, 0x10011a08)
+	colocar_comida(0x10011d04, 0x10011d04)
+	colocar_comida(0x10010b4c, 0x10010b4c)
+	colocar_comida(0x10010d4c, 0x10010d4c)
+	colocar_comida(0x10010f4c, 0x10010f4c)
+	colocar_comida(0x1001114c, 0x1001114c)
+	colocar_comida(0x1001154c, 0x1001154c)
+	colocar_comida(0x1001174c, 0x1001174c)
+	colocar_comida(0x1001194c, 0x1001194c)
+	colocar_comida(0x10011b4c, 0x10011b5c)
+	colocar_comida(0x10011d5c, 0x10011d5c)
+	colocar_comida(0x1001155c, 0x1001155c)
+	colocar_comida(0x10011658, 0x10011658)
+	colocar_comida(0x10011858, 0x10011858)
+	colocar_comida(0x10011a58, 0x10011a58)
+	colocar_comida(0x10011820, 0x10011820)
+	colocar_comida(0x10011a20, 0x10011a20)
+	colocar_comida(0x10011b24, 0x10011b24)
+	colocar_comida(0x10011c28, 0x10011c28)
+	colocar_comida(0x10010608, 0x10010658)
+	colocar_comida(0x10011840, 0x10011840)
+	colocar_comida(0x10011a40, 0x10011a40)
+	colocar_comida(0x10011b3c, 0x10011b3c)
+	colocar_comida(0x10011c38, 0x10011c38)
+	colocar_comida(0x10010d1c, 0x10010d1c)
+	colocar_comida(0x10010d44, 0x10010d44)
+	colocar_comida(0x10011430, 0x10011430)
+	
+.end_macro
 .text
 	addi $s0, $zero, 0x10011630
 	la $t0, mapa1
 	pintar_mapa1()
+	pintar_comidas()
 	colocar_pacman()
 	do:
 		mover_pacman()
