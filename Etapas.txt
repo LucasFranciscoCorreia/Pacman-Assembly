@@ -1,6 +1,6 @@
 Desenhar o mapa (1/2 Concluido)
-Colocar o pacman
-Movimentar o pacman
+Colocar o pacman (Concluido)
+Movimentar o pacman (Concluido)
 Colocar as "comidas"
 "comer" as "comidas"
 Colocar os fantasmas

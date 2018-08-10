@@ -1,8 +1,8 @@
 .data
 
-cor:		.word 0x0000FF
-mapa:	.word 0x10010000
+mapa1:	.space 32784
 bitmap_size:	.word 8196	# 512 x 256 pixels => 4 pixels por word
+cor:		.word 0x0000FF
 
 .macro pintar_linha(%inicio, %fim)
 	li, $a0, %inicio
@@ -199,8 +199,101 @@ bitmap_size:	.word 8196	# 512 x 256 pixels => 4 pixels por word
 	pintar_linha(0x10010e3c, 0x10010e3c)
 	pintar_linha(0x10010f3c, 0x10010f3c)
 	pintar_linha(0x1001103c, 0x1001103c)
-	pintar_linha(0x1001113c, 0x1001113c)		
+	pintar_linha(0x1001113c, 0x1001113c)
+	addi $a0, $zero, 0x10010c30
+	addi $a1, $zero, 0xffffffff
+	sw $a1, 0($a0)
 .end_macro
 
+.macro colocar_pacman
+	addi $a0, $zero,0x00FFFF00
+	sw $a0, 0($s0)
+.end_macro
+
+.macro mover_pacman 
+	lw $a0, 0xffff0004
+	addi $a1, $zero, 0x00ffff00
+	
+	beq $a0, 119, mover_cima
+	beq $a0, 115, mover_baixo
+	beq $a0, 97, mover_esquerda
+	beq $a0, 100, mover_direita
+	j fim_movimento
+	
+	mover_esquerda:
+	lw $t0, -4($s0)
+	lw $t1, cor
+	beq $t0, $t1, parede
+	addi $t0, $s0, -4
+	beq $t0, 0x10010d00, portal_direita
+	sw  $zero, 0($s0)
+	addi $s0, $s0, -4
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+	j fim_movimento	
+	
+	mover_direita:
+	lw $t0, 4($s0)
+	lw $t1, cor
+	beq $t0, $t1, parede
+	addi $t0, $s0, 4
+	beq $t0, 0x10010d60, portal_esquerda
+	sw  $zero, 0($s0)
+	addi $s0, $s0, 4
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+	j fim_movimento	
+	
+	mover_baixo:
+	lw $t0, 256($s0)
+	lw $t1, cor
+	beq $t0, $t1, parede
+	addi $t0, $s0, 256
+	beq $t0, 0x10010c30, fim_movimento
+	sw  $zero, 0($s0)
+	addi $s0, $s0, 256
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+	
+	j fim_movimento	
+	
+	mover_cima:
+	lw $t0, -256($s0)
+	lw $t1, cor
+	beq $t0, $t1, parede
+	sw  $zero, 0($s0)
+	addi $s0, $s0, -256
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+	j fim_movimento	
+	
+	parede:
+	sw $zero, 0xffff0004
+	j fim_movimento
+	
+	portal_direita:
+	sw  $zero, 0($s0)
+	addi $s0, $zero, 0x10010d5c
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+	j fim_movimento
+	
+	portal_esquerda:
+	sw  $zero, 0($s0)
+	addi $s0, $zero, 0x10010d04
+	sw $a1, 0($s0)
+	sw $zero, 0xffff0004
+			
+	fim_movimento:
+.end_macro
 .text
+	addi $s0, $zero, 0x10011630
+	la $t0, mapa1
 	pintar_mapa1()
+	colocar_pacman()
+	do:
+		mover_pacman()
+		j do
+	while:
+	
+	
