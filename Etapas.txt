@@ -1,4 +1,4 @@
-Desenhar o mapa
+Desenhar o mapa (1/2 Concluido)
 Colocar o pacman
 Movimentar o pacman
 Colocar as "comidas"
