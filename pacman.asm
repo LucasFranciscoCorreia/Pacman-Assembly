@@ -387,10 +387,14 @@ cor:		.word 0x0000FF
 	addi $a0, $zero, %endereco
 	add $a1, $zero, %bits
 	
+	
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg2
 	addi $t0, $a0, 512
+	addi, $sp, $sp, -8
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -398,12 +402,16 @@ cor:		.word 0x0000FF
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
-	
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+
 	seg2:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg3
 	addi $t0, $t0, 512
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -412,6 +420,8 @@ cor:		.word 0x0000FF
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg3:
 	andi $a2, $a1, 1
@@ -419,6 +429,8 @@ cor:		.word 0x0000FF
 	beqz $a2, seg4
 	addi $t0, $zero, %endereco
 	addi $t0, $t0, 0x00000214
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -426,12 +438,17 @@ cor:		.word 0x0000FF
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
-		
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)		
+	
+	
 	seg4:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg5
 	addi $t0, $t0, 512
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -440,31 +457,46 @@ cor:		.word 0x0000FF
 	addi $t0, $t0, 256
 	pintar_linha($t0, $t0, 0xffffffff)
 	addi $t0, $t0, 256
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg5:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
-	beqz $a2, seg6
 	addi $t0, $zero, %endereco
 	addi $t0, $t0, 0x00000104
+	beqz $a2, seg6
 	addi $t1, $t0, 0x0c
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t1, 0xffffffff)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg6:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
-	beqz $a2, seg7
 	addi $t0 $t0, 0x00000500
+	beqz $a2, seg7
 	addi $t1, $t0, 0x0c
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t1, 0xffffffff)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg7:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, end
-	addi $t0 $t0, 0x00000500
+	addi $t0, $t0, 0x00000500
 	addi $t1, $t0, 0x0c
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
 	pintar_linha($t0, $t1, 0xffffffff)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	addi $sp, $sp 8
 	
 	end:
 	
@@ -472,74 +504,93 @@ cor:		.word 0x0000FF
 
 .macro letreiro(%valor)
 	add $a0, $zero, %valor
-	addi $t2, $zero, 0x000003e8
-	div $a0, $t2
-	mfhi $t2
+	addi $a1, $zero, 0x000003e8
+	div $a0, $a1
+	mflo $a1
 	jal get_bits
-	sete_segmentos(0x10010278, $t2)
-	mflo $a0
-	addi $t2, $zero, 0x064
-	div $a0, $t2
-	mfhi $t2
+	addi $sp, $sp -8
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sete_segmentos(0x10010278, $a1)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)	
+	mfhi $a0
+	addi $a1, $zero, 0x064
+	div $a0, $a1
+	mflo $a1
 	jal get_bits
-	sete_segmentos(0x10010298, $t2)
-	mflo $a0
-	addi $t2, $zero, 0x0a
-	div $a0, $t2
-	mfhi $t2
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sete_segmentos(0x10010298, $a1)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	mfhi $a0
+	addi $a1, $zero, 0x0a
+	div $a0, $a1
+	mflo $a1
 	jal get_bits
-	sete_segmentos(0x100102b8, $t2)
-	mflo $t1
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sete_segmentos(0x100102b8, $a1)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	mfhi $a1
 	jal get_bits
-	sete_segmentos(0x100102d8, $t2)
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sete_segmentos(0x100102d8, $a1)
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	addi $sp, $sp, 8
 	j exit
+	
 	get_bits:
 		case_0:
-		bne $t2, 0, case_1
-		li $t2, 0x005f
+		bne $a1, 0, case_1
+		li $a1, 0x07c
 		j end_cases
 		
 		case_1:
-		bne $t2, 1, case_2
-		li $t2, 0x0000
+		bne $a1, 1, case_2
+		li $a1, 0x0000
 		j end_cases
 		case_2: 
-		bne $t2, 2, case_3
-		li $t2, 0x0000
+		bne $a1, 2, case_3
+		li $a1, 0x0000
 		j end_cases
 		
 		case_3:
-		bne $t2, 3, case_4
-		li $t2, 0x0000
+		bne $a1, 3, case_4
+		li $a1, 0x0000
 		j end_cases
 		
 		case_4:
-		bne $t2, 4, case_5
-		li $t2, 0x0000
+		bne $a1, 4, case_5
+		li $a1, 0x0000
 		j end_cases
 		
 		case_5:
-		bne $t2, 5, case_6
-		li $t2, 0x0000
+		bne $a1, 5, case_6
+		li $a1, 0x0000
 		j end_cases
 		
 		case_6:
-		bne $t2, 6, case_7
-		li $t2, 0x0000
+		bne $a1, 6, case_7
+		li $a1, 0x0000
 		j end_cases
 		
 		case_7:
-		bne $t2, 7, case_8
-		li $t2, 0x0000
+		bne $a1, 7, case_8
+		li $a1, 0x0000
 		j end_cases
 		
 		case_8:
-		bne $t2, 8, case_9
-		li $a2, 0x0000
+		bne $a1, 8, case_9
+		li $a1, 0x0000
 		j end_cases
 		
 		case_9:
-		li $t2, 0x0000
+		li $a1, 0x0000
 		j end_cases
 	end_cases:
 	jr $ra
@@ -549,7 +600,7 @@ cor:		.word 0x0000FF
 
 .text
 	addi $s0, $zero, 0x10011630
-	add $s1, $zero, $zero
+	addi $s1, $zero, 10
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
