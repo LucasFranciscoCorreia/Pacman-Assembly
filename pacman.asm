@@ -201,7 +201,7 @@ cor:		.word 0x0000FF
 	pintar_linha(0x1001103c, 0x1001103c)
 	pintar_linha(0x1001113c, 0x1001113c)
 	addi $a0, $zero, 0x10010c30
-	addi $a1, $zero, 0xffffffff
+	addi $a1, $zero, 0xaaaaaaaa
 	sw $a1, 0($a0)
 .end_macro
 
@@ -226,7 +226,12 @@ cor:		.word 0x0000FF
 	beq $t0, $t1, parede
 	addi $t0, $s0, -4
 	beq $t0, 0x10010d00, portal_direita
-	beq $t0, 0x00ffffff, contar_pontos
+	lw $t0, -4($s0)
+	beqz $t0, continuar_esquerda
+	limpar_letreiro()
+	addi $s1, $s1, 1
+	letreiro($s1)
+	continuar_esquerda:
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -4
 	sw $a1, 0($s0)
@@ -239,6 +244,12 @@ cor:		.word 0x0000FF
 	beq $t0, $t1, parede
 	addi $t0, $s0, 4
 	beq $t0, 0x10010d60, portal_esquerda
+	lw $t0, 4($s0)
+	beqz $t0, continuar_direita
+	limpar_letreiro()
+	addi $s1, $s1, 1
+	letreiro($s1)
+	continuar_direita:
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 4
 	sw $a1, 0($s0)
@@ -251,6 +262,12 @@ cor:		.word 0x0000FF
 	beq $t0, $t1, parede
 	addi $t0, $s0, 256
 	beq $t0, 0x10010c30, fim_movimento
+	lw $t0, 256($s0)
+	beqz $t0, continuar_baixo
+	limpar_letreiro()
+	addi $s1, $s1, 1
+	letreiro($s1)
+	continuar_baixo:
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 256
 	sw $a1, 0($s0)
@@ -262,6 +279,13 @@ cor:		.word 0x0000FF
 	lw $t0, -256($s0)
 	lw $t1, cor
 	beq $t0, $t1, parede
+	lw $t0, -256($s0)
+	beqz $t0, continuar_cima
+	limpar_letreiro()
+	addi $s1, $s1, 1
+	letreiro($s1)
+	sw $a1, -256($s0)
+	continuar_cima:
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -256
 	sw $a1, 0($s0)
@@ -286,6 +310,7 @@ cor:		.word 0x0000FF
 	sw $zero, 0xffff0004
 			
 	fim_movimento:
+	sw $a1, 0($s0)
 .end_macro
 
 .macro colocar_comida (%inicio, %fim)
@@ -674,9 +699,9 @@ cor:		.word 0x0000FF
 	pintar_comidas()
 	colocar_pacman()
 	letreiro($s1)
-	limpar_letreiro()
 	do:
 		mover_pacman()
+		beq $s1, 114, while
 		j do
 	while:
 	
