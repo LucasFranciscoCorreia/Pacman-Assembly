@@ -226,6 +226,7 @@ cor:		.word 0x0000FF
 	beq $t0, $t1, parede
 	addi $t0, $s0, -4
 	beq $t0, 0x10010d00, portal_direita
+	beq $t0, 0x00ffffff, contar_pontos
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -4
 	sw $a1, 0($s0)
@@ -652,6 +653,20 @@ cor:		.word 0x0000FF
 	addi $sp, $sp, 8
 .end_macro
 
+.macro limpar_letreiro
+	pintar_linha(0x10010278, 0x100102f0,0x00)
+	pintar_linha(0x10010378, 0x100103f0,0x00)
+	pintar_linha(0x10010478, 0x100104f0,0x00)
+	pintar_linha(0x10010578, 0x100105f0,0x00)
+	pintar_linha(0x10010678, 0x100106f0,0x00)
+	pintar_linha(0x10010778, 0x100107f0,0x00)
+	pintar_linha(0x10010878, 0x100108f0,0x00)
+	pintar_linha(0x10010978, 0x100109f0,0x00)
+	pintar_linha(0x10010a78, 0x10010af0,0x00)
+	pintar_linha(0x10010b78, 0x10010bf0,0x00)
+	pintar_linha(0x10010c78, 0x10010cf0,0x00)
+	pintar_linha(0x10010d78, 0x10010df0,0x00)
+.end_macro
 .text
 	addi $s0, $zero, 0x10011630
 	addi $s1, $zero, 0
@@ -659,6 +674,7 @@ cor:		.word 0x0000FF
 	pintar_comidas()
 	colocar_pacman()
 	letreiro($s1)
+	limpar_letreiro()
 	do:
 		mover_pacman()
 		j do
