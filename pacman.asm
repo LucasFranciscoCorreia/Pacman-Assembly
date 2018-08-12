@@ -203,6 +203,18 @@ cor:		.word 0x0000FF
 	addi $a0, $zero, 0x10010c30
 	addi $a1, $zero, 0xaaaaaaaa
 	sw $a1, 0($a0)
+	addi $a0, $a0, 0x0100
+	addi $a1, $zero, 0x00ff0000
+	sw $a1, 0($a0)
+	addi $a0, $a0, 0x0100
+	addi $a1, $zero, 0x00FF00FF
+	sw $a1, 0($a0)
+	addi $a0, $a0, 0x0100
+	addi $a1, $zero, 0x00FF7F00
+	sw $a1, 0($a0)
+	addi $a0, $a0, 0x100
+	addi $a1, $zero, 0x0000FFFF
+	sw $a1, 0($a0)
 .end_macro
 
 .macro colocar_pacman
@@ -235,7 +247,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -4
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
+	add $a3, $a0, $zero 
 	j fim_movimento	
 	
 	mover_direita:
@@ -253,7 +265,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 4
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
+	add $a3, $a0, $zero 
 	j fim_movimento	
 	
 	mover_baixo:
@@ -271,8 +283,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 256
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
-	
+	add $a3, $a0, $zero 	
 	j fim_movimento	
 	
 	mover_cima:
@@ -289,25 +300,23 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -256
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
+	add $a3, $a0, $zero
 	j fim_movimento	
 	
 	parede:
-	sw $zero, 0xffff0004
+	sw $a3, 0xffff0004
 	j fim_movimento
 	
 	portal_direita:
 	sw  $zero, 0($s0)
 	addi $s0, $zero, 0x10010d5c
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
 	j fim_movimento
 	
 	portal_esquerda:
 	sw  $zero, 0($s0)
 	addi $s0, $zero, 0x10010d04
 	sw $a1, 0($s0)
-	sw $zero, 0xffff0004
 			
 	fim_movimento:
 	sw $a1, 0($s0)
@@ -692,16 +701,50 @@ cor:		.word 0x0000FF
 	pintar_linha(0x10010c78, 0x10010cf0,0x00)
 	pintar_linha(0x10010d78, 0x10010df0,0x00)
 .end_macro
+
+.macro mover_vermelho
+	lw $a0, 0($s2)
+	beqz $a0, sair_labirinto
+	lw $a1, 4($s2)
+	addi $a2, $zero, 0x00ff0000
+	addi $a1, $a1, -4
+	sw $a2, 0($a1)
+	sw $a1, 4($s2)
+	j fim_movimento
+	
+
+	sair_labirinto:
+	lw $a1, 4($s2)
+	addi $a1, $a1, -512
+	addi $a0, $a0, 1
+	addi $a2, $zero, 0x00ff0000
+	sw $a1, 4($s2)
+	sw $a0, 0($s2)
+	sw $a2, 0($a1)
+
+	fim_movimento:
+.end_macro
+
 .text
 	addi $s0, $zero, 0x10011630
 	addi $s1, $zero, 0
+	addi $sp, $sp, -0x014
+	add $s2, $zero, $sp
+	addi $a0, $zero, 0x10010d30
+	sw $a0, 4($sp)
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
 	letreiro($s1)
 	do:
 		mover_pacman()
+		mover_vermelho()
 		beq $s1, 114, while
+		li $a0, 500
+		li $v0, 32
+		addi $a1, $zero, 0x00ffff00
+		sw $a1, 0($s0)
+		syscall
 		j do
 	while:
 	

@@ -3,10 +3,10 @@ Colocar o pacman (Concluido)
 Movimentar o pacman (Concluido)
 Colocar as "comidas" (Concluido)
 "comer" as "comidas" (Concluido)
-Temporizar movimentos
-Colocar os fantasmas
+Temporizar movimentos (Concluido)
+Colocar os fantasmas (Concluido)
 Movimentar um fantasma
 Movimentar todos os fantasmas
 Controlador de vidas
-Pontuação
+Pontuação (Concluido)
 Colocar musica
