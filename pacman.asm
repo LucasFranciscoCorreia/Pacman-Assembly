@@ -388,6 +388,7 @@ cor:		.word 0x0000FF
 	add $a1, $zero, %bits
 	addi $sp, $sp, -8
 	
+	
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg2
@@ -415,7 +416,7 @@ cor:		.word 0x0000FF
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	
+
 	seg2:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
@@ -446,6 +447,8 @@ cor:		.word 0x0000FF
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
 	addi $t0, $t0, 256
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg3:
 	andi $a2, $a1, 1
@@ -507,13 +510,15 @@ cor:		.word 0x0000FF
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
 	addi $t0, $t0, 256
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
 	
 	seg5:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
-	beqz $a2, seg6
 	addi $t0, $zero, %endereco
 	addi $t0, $t0, 0x00000104
+	beqz $a2, seg6
 	addi $t1, $t0, 0x0c
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
@@ -524,6 +529,7 @@ cor:		.word 0x0000FF
 	seg6:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
+	addi $t0 $t0, 0x00000500
 	beqz $a2, seg7
 	addi $t0, $t0, %endereco 
 	addi $t0, $t0, 0x00000504
@@ -591,10 +597,11 @@ cor:		.word 0x0000FF
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
 	j exit
+	
 	get_bits:
 		case_0:
-		bne $a1, 0, case_1
 		li $a1, 0x006f
+		bne $a1, 0, case_1
 		j end_cases
 		
 		case_1:
@@ -647,7 +654,7 @@ cor:		.word 0x0000FF
 
 .text
 	addi $s0, $zero, 0x10011630
-	add $s1, $zero, $zero
+	addi $s1, $zero, 10
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
