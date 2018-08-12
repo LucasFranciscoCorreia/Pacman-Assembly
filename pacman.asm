@@ -392,25 +392,25 @@ cor:		.word 0x0000FF
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg2
-	addi $t0, $a0, 512
+	addi $t0, $a0, 0x0200
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -422,7 +422,7 @@ cor:		.word 0x0000FF
 	srl $a1, $a1, 1
 	beqz $a2, seg3
 	addi $t0, $zero, %endereco
-	addi $t0, $t0, 0x0c00
+	addi $t0, $t0, 0x0700
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -455,25 +455,25 @@ cor:		.word 0x0000FF
 	srl $a1, $a1, 1
 	beqz $a2, seg4
 	addi $t0, $zero, %endereco
-	addi $t0, $t0, 0x00000214
+	addi $t0, $t0, 0x0214
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
@@ -484,32 +484,32 @@ cor:		.word 0x0000FF
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, seg5
-	addi $t0, $t0, %endereco
-	addi $t0, $t0, 0x0c14
+	addi $t0, $zero %endereco
+	addi $t0, $t0, 0x0714
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
 	pintar_linha($t0, $t0, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $t0, $t0, 256
+	addi $t0, $t0, 0x0100
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
 	
@@ -517,7 +517,7 @@ cor:		.word 0x0000FF
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	addi $t0, $zero, %endereco
-	addi $t0, $t0, 0x00000104
+	addi $t0, $t0, 0x0104
 	beqz $a2, seg6
 	addi $t1, $t0, 0x0c
 	sw $a0, 0($sp)
@@ -529,10 +529,10 @@ cor:		.word 0x0000FF
 	seg6:
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
-	addi $t0 $t0, 0x00000500
+	addi $t0 $t0, 0x0500
 	beqz $a2, seg7
-	addi $t0, $t0, %endereco 
-	addi $t0, $t0, 0x00000504
+	addi $t0, $zero, %endereco 
+	addi $t0, $t0, 0x00000604
 	addi $t1, $t0, 0x0c
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
@@ -544,8 +544,8 @@ cor:		.word 0x0000FF
 	andi $a2, $a1, 1
 	srl $a1, $a1, 1
 	beqz $a2, end
-	addi $t0, $t0, %endereco
-	addi $t0, $t0, 0x00000a04
+	addi $t0, $zero, %endereco
+	addi $t0, $t0, 0x00000b04
 	addi $t1, $t0, 0x0c
 	sw $a0, 0($sp)
 	sw $a1, 4($sp)
@@ -600,51 +600,51 @@ cor:		.word 0x0000FF
 	
 	get_bits:
 		case_0:
-		li $a1, 0x006f
 		bne $a1, 0, case_1
+		li $a1, 0x005f
 		j end_cases
 		
 		case_1:
 		bne $a1, 1, case_2
-		li $a1, 0x0000
+		li $a1, 0x00c
 		j end_cases
 		case_2: 
 		bne $a1, 2, case_3
-		li $a1, 0x0000
+		li $a1, 0x0076
 		j end_cases
 		
 		case_3:
 		bne $a1, 3, case_4
-		li $a1, 0x0000
+		li $a1, 0x007c
 		j end_cases
 		
 		case_4:
 		bne $a1, 4, case_5
-		li $a1, 0x0000
+		li $a1, 0x00002d
 		j end_cases
 		
 		case_5:
 		bne $a1, 5, case_6
-		li $a1, 0x0000
+		li $a1, 0x0079
 		j end_cases
 		
 		case_6:
 		bne $a1, 6, case_7
-		li $a1, 0x0000
+		li $a1, 0x007b
 		j end_cases
 		
 		case_7:
 		bne $a1, 7, case_8
-		li $a1, 0x0000
+		li $a1, 0x001c
 		j end_cases
 		
 		case_8:
 		bne $a1, 8, case_9
-		li $a1, 0x0000
+		li $a1, 0x007f
 		j end_cases
 		
 		case_9:
-		li $a1, 0x0000
+		li $a1, 0x007d
 		j end_cases
 	end_cases:
 	jr $ra
@@ -654,7 +654,7 @@ cor:		.word 0x0000FF
 
 .text
 	addi $s0, $zero, 0x10011630
-	addi $s1, $zero, 10
+	addi $s1, $zero, 0
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
