@@ -710,14 +710,6 @@ direita:	.word 'd'
 .macro mover_vermelho
 	lw $a0, 0($s2)
 	beqz $a0, sair_labirinto
-	lw $a0, 4($s2)
-	lw $a2, -4($a0)
-	#jal contar_laterais
-	beq $a2, 0x000000ff, parede
-	jal escolher_direcao
-	j fim_movimento
-	
-	parede:
 	jal escolher_direcao
 	j fim_movimento
 	
@@ -725,51 +717,68 @@ direita:	.word 'd'
 		add $t0, $zero, $zero
 		checar_cima:
 		lw $t1, -256($a0)
-		bne $t1, 0x000000ff,checar_direita
+		beq $t1, 0x000000ff,checar_direita
 		addi $t0, $t0, 1
 		
 		checar_direita:
 		lw $t1, 4($a0)
-		bne $t1, 0x000000ff,checar_baixo
+		beq $t1, 0x000000ff,checar_baixo
 		addi $t0, $t0, 1
 		
 		
 		checar_baixo:
 		lw $t1, 256($a0)
-		bne $t1, 0x000000ff,checar_esquerda
+		beq $t1, 0x000000ff,checar_esquerda
+		beq $t1, 0xaaaaaaaa, checar_esquerda
 		addi $t0, $t0, 1
 		
 		checar_esquerda:
 		lw $t1, -4($a0)
-		bne $t1,0x000000ff, fim_checagem
+		beq $t1,0x000000ff, fim_checagem
 		addi $t0, $t0, 1
 	fim_checagem:
 	jr $ra
 	
 	escolher_direcao:
+		lw $a0, 4($sp)
 		jal contar_laterais
-		beq $t0, 2, seguir_caminho
 		addi $a1, $zero, 0x00ff0000
-		addi $a0, $a0, -4
-		lw $a3, 8($s2)
-		sw $a1, 0($a0)
-		sw $a3, 4($a0)
-		sw $a0, 4($s2)
-		sw $a2, 8($s2)
-		lw $a0, esquerda
-		sw $a0, 12($s2)
+		beq $t0, 2, seguir_caminho
+		
+		
 		j fim_movimento
+
+		
+				
 		seguir_caminho:
 			lw $a3, 12($s2)
 		ver_cima:
 			lw $t0, -256($a0)
 			bnez $t0, ver_direita
 			beq $a3, 's', ver_direita
+			addi $a0, $a0,-256
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, 256($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, cima
+			sw $a0, 12($s2)
 			j fim_movimento
 		ver_direita:
 			lw $t0, 4($a0)
 			bnez $t0, ver_baixo
 			beq $a3, 'a', ver_baixo
+			addi $a0, $a0,4
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, -4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, direita
+			sw $a0, 12($s2)
 			j fim_movimento
 		ver_baixo:
 			lw $t0, 256($a0)
@@ -777,7 +786,7 @@ direita:	.word 'd'
 			beq $a3, 'w', ver_esquerda
 			addi $a1, $zero, 0x00ff0000
 			addi $a0, $a0, 256
-			lw $a2, 256($a0)
+			lw $a2,0($a0)
 			lw $a3, 8($s2)
 			sw $a1, 0($a0)
 			sw $a3, -256($a0)
@@ -793,6 +802,7 @@ direita:	.word 'd'
 			beq $a3, 'd', end_escolha
 			addi $a1, $zero, 0x00ff0000
 			addi $a0, $a0,-4
+			lw $a2, 0($a0)
 			lw $a3, 8($s2)
 			sw $a1, 0($a0)
 			sw $a3, 4($a0)
