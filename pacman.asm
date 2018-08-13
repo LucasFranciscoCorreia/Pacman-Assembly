@@ -715,27 +715,31 @@ direita:	.word 'd'
 	
 	contar_laterais:
 		add $t0, $zero, $zero
+		add $t2, $zero, $zero
 		checar_cima:
 		lw $t1, -256($a0)
 		beq $t1, 0x000000ff,checar_direita
 		addi $t0, $t0, 1
+		addi $t2, $t2, 1
 		
 		checar_direita:
 		lw $t1, 4($a0)
 		beq $t1, 0x000000ff,checar_baixo
 		addi $t0, $t0, 1
-		
+		addi $t2, $t2, 2
 		
 		checar_baixo:
 		lw $t1, 256($a0)
 		beq $t1, 0x000000ff,checar_esquerda
 		beq $t1, 0xaaaaaaaa, checar_esquerda
 		addi $t0, $t0, 1
+		addi $t2, $t2, 4
 		
 		checar_esquerda:
 		lw $t1, -4($a0)
 		beq $t1,0x000000ff, fim_checagem
 		addi $t0, $t0, 1
+		addi $t2, $t2, 8
 	fim_checagem:
 	jr $ra
 	
@@ -745,11 +749,37 @@ direita:	.word 'd'
 		addi $a1, $zero, 0x00ff0000
 		beq $t0, 2, seguir_caminho
 		
-		
+		jal calcular_distancia
 		j fim_movimento
 
 		
-				
+		calcular_distancia:
+		
+		distancia_cima:
+		andi $t3, $t2, 1
+		srl $t2, $t2, 1
+		beqz $t3, distancia_direita
+		
+		distancia_direita:
+		andi $t3, $t2, 1
+		srl $t2, $t2, 1
+		beqz $t3, distancia_baixo
+		and $t4, $a0, 0x0000ffff
+		srl $t4, $t4,8
+		and $t5, $a0, 0x0ff
+		
+		distancia_baixo:
+		andi $t3, $t2, 1
+		srl $t2, $t2, 1
+		beqz $t3, distancia_esquerda
+		
+		distancia_esquerda:
+		andi $t3, $t2, 1
+		beqz $t3,  fim_distancia
+		
+		fim_distancia:
+		jr $ra
+		
 		seguir_caminho:
 			lw $a3, 12($s2)
 		ver_cima:
