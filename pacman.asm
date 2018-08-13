@@ -3,6 +3,11 @@
 mapa1:	.space 32784
 bitmap_size:	.word 8196	# 512 x 256 pixels => 4 pixels por word
 cor:		.word 0x0000FF
+cima:	.word 'w'
+baixo:	.word 's'
+esquerda:	.word 'a'
+direita:	.word 'd'
+
 
 .macro pintar_linha(%inicio, %fim)
 	li, $a0, %inicio
@@ -247,7 +252,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -4
 	sw $a1, 0($s0)
-	add $a3, $a0, $zero 
+	add $t9, $a0, $zero 
 	j fim_movimento	
 	
 	mover_direita:
@@ -265,7 +270,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 4
 	sw $a1, 0($s0)
-	add $a3, $a0, $zero 
+	add $t9, $a0, $zero 
 	j fim_movimento	
 	
 	mover_baixo:
@@ -283,7 +288,7 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, 256
 	sw $a1, 0($s0)
-	add $a3, $a0, $zero 	
+	add $t9, $a0, $zero 	
 	j fim_movimento	
 	
 	mover_cima:
@@ -300,11 +305,11 @@ cor:		.word 0x0000FF
 	sw  $zero, 0($s0)
 	addi $s0, $s0, -256
 	sw $a1, 0($s0)
-	add $a3, $a0, $zero
+	add $t9, $a0, $zero
 	j fim_movimento	
 	
 	parede:
-	sw $a3, 0xffff0004
+	sw $t9, 0xffff0004
 	j fim_movimento
 	
 	portal_direita:
@@ -587,8 +592,8 @@ cor:		.word 0x0000FF
 	pintar_linha($t0, $t1, 0xffffffff)
 	lw $a0, 0($sp)
 	lw $a1, 4($sp)
-	addi $sp, $sp, 8
 	end:
+	addi $sp, $sp, 8
 	
 .end_macro
 
@@ -705,14 +710,99 @@ cor:		.word 0x0000FF
 .macro mover_vermelho
 	lw $a0, 0($s2)
 	beqz $a0, sair_labirinto
-	lw $a1, 4($s2)
-	addi $a2, $zero, 0x00ff0000
-	addi $a1, $a1, -4
-	sw $a2, 0($a1)
-	sw $a1, 4($s2)
+	lw $a0, 4($s2)
+	lw $a2, 0($a0)
+	#jal contar_laterais
+	beq $a2, 0x000000ff, parede
+	jal escolher_direcao
 	j fim_movimento
 	
-
+	parede:
+	jal escolher_direcao
+	j fim_movimento
+	
+	contar_laterais:
+		add $t0, $zero, $zero
+		checar_cima:
+		lw $t1, -256($a0)
+		bnez $t1, checar_direita
+		addi $t0, $t0, 1
+		
+		checar_direita:
+		lw $t1, 4($a0)
+		bnez $t1, checar_baixo
+		addi $t0, $t0, 1
+		
+		
+		checar_baixo:
+		lw $t1, 256($a0)
+		bnez $t1, checar_esquerda
+		addi $t0, $t0, 1
+		
+		checar_esquerda:
+		lw $t1, -4($a0)
+		bnez $t1, fim_checagem
+		addi $t0, $t0, 1
+	fim_checagem:
+	jr $ra
+	
+	escolher_direcao:
+		jal contar_laterais
+		beq $t0, 2, seguir_caminho
+		addi $a1, $zero, 0x00ff0000
+		addi $a0, $a0, -4
+		lw $a3, 8($s2)
+		sw $a1, 0($a0)
+		sw $a3, 4($a0)
+		sw $a0, 4($s2)
+		sw $a2, 8($s2)
+		lw $a0, esquerda
+		sw $a0, 12($s2)
+		j fim_movimento
+		seguir_caminho:
+			lw $a3, 12($s2)
+		ver_cima:
+			lw $t0, -256($a0)
+			bnez $t0, ver_direita
+			j fim_movimento
+		ver_direita:
+			lw $t0, 4($a0)
+			bnez $t0, ver_baixo
+			beq $a3, 'a', ver_baixo
+			j fim_movimento
+		ver_baixo:
+			lw $t0, 256($a0)
+			bnez $t0, ver_esquerda
+			beq $a3, 'w', ver_esquerda
+			addi $a1, $zero, 0x00ff0000
+			addi $a0, $a0, 256
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, 4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, esquerda
+			sw $a0, 12($s2)
+			j fim_movimento
+					
+		ver_esquerda:
+			lw $t0, -4($a0)
+			bnez $t0, end_escolha
+			beq $a3, 'd', end_escolha
+			addi $a1, $zero, 0x00ff0000
+			addi $a0, $a0,-4
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, 4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, esquerda
+			sw $a0, 12($s2)
+			j fim_movimento
+		end_escolha:
+		jr $ra
+	
+	
 	sair_labirinto:
 	lw $a1, 4($s2)
 	addi $a1, $a1, -512
@@ -721,7 +811,9 @@ cor:		.word 0x0000FF
 	sw $a1, 4($s2)
 	sw $a0, 0($s2)
 	sw $a2, 0($a1)
-
+	lw $a3, esquerda
+	sw $a3, 12($s2)
+	
 	fim_movimento:
 .end_macro
 
