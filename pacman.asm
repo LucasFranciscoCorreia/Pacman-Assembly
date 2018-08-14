@@ -716,29 +716,38 @@ direita:	.word 'd'
 	contar_laterais:
 		add $t0, $zero, $zero
 		add $t2, $zero, $zero
-		checar_cima:
-		lw $t1, -256($a0)
-		beq $t1, 0x000000ff,checar_direita
-		addi $t0, $t0, 1
-		addi $t2, $t2, 1
-		
-		checar_direita:
-		lw $t1, 4($a0)
-		beq $t1, 0x000000ff,checar_baixo
-		addi $t0, $t0, 1
-		addi $t2, $t2, 2
-		
-		checar_baixo:
-		lw $t1, 256($a0)
-		beq $t1, 0x000000ff,checar_esquerda
-		beq $t1, 0xaaaaaaaa, checar_esquerda
-		addi $t0, $t0, 1
-		addi $t2, $t2, 4
 		
 		checar_esquerda:
 		lw $t1, -4($a0)
-		beq $t1,0x000000ff, fim_checagem
+		beq $t1,0x000000ff, checar_direita
 		addi $t0, $t0, 1
+		addi $t1, $a0, -4
+		beq $t1, 0x10010d10,checar_direita
+		addi $t2, $t2, 1
+		
+		checar_direita:
+		addi $t1, $a0, 4
+		beq $t1, 0x10010d50,checar_cima
+		lw $t1, 4($a0)
+		beq $t1, 0x000000ff,checar_cima
+		addi $t0, $t0, 1
+		addi $t1, $a0, 4
+		beq $t1, 0x10010d50,checar_cima
+		addi $t2, $t2, 2
+		
+		checar_cima:
+		lw $t1, -256($a0)
+		beq $t1, 0x000000ff,checar_baixo
+		addi $t0, $t0, 1
+		addi $t1, $a0, -256
+		addi $t2, $t2, 4
+		
+		checar_baixo:
+		lw $t1, 256($a0)
+		beq $t1, 0x000000ff, fim_checagem
+		beq $t1, 0xaaaaaaaa, fim_checagem
+		addi $t0, $t0, 1
+		addi $t1, $a0, 256
 		addi $t2, $t2, 8
 	fim_checagem:
 	jr $ra
@@ -748,43 +757,114 @@ direita:	.word 'd'
 		jal contar_laterais
 		addi $a1, $zero, 0x00ff0000
 		beq $t0, 2, seguir_caminho
+		decidir_caminho:
 		
-		jal calcular_distancia
+			decidir_horizontal:
+			andi $t4, $t2, 0x03
+			beqz $t4, decidir_vertical
+			li $v0, 42
+			addi $sp, $sp, -8
+			sw $a0, 0($sp)
+			sw $a1, 4($sp)
+			li $a0, 1
+			li $a1, 2
+			syscall
+			add $t4, $zero, $a0
+			lw $a0, 0($sp)
+			lw $a1, 4($sp)
+			lw $a3, 12($s2)
+			addi $sp, $sp, 8
+			beqz $t4, decidir_esquerda
+			j decidir_direita
+			
+			decidir_esquerda: 
+			andi $t3, $t2, 1
+			beqz $t3,  decidir_vertical
+			beq $a3, 'd', decidir_vertical
+			lw $t0, -4($a0)
+			addi $a1, $zero, 0x00ff0000
+			addi $a0, $a0,-4
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, 4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, esquerda
+			sw $a0, 12($s2)
+			j fim_movimento
+			
+			decidir_direita: 
+			andi $t3, $t2, 2  
+			beqz $t3, decidir_vertical
+			beq $a3, 'a', decidir_vertical
+			addi $a0, $a0,4
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, -4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, direita
+			sw $a0, 12($s2)
+			j fim_movimento
+			
+			
+			decidir_vertical:
+			addi $sp, $sp, -8
+			sw $a0, 0($sp)
+			sw $a1, 4($sp)
+			li $a0, 1
+			li $a1, 2
+			syscall
+			add $t4, $zero, $a0
+			lw $a0, 0($sp)
+			lw $a1, 4($sp)
+			lw $a3, 12($s2)
+			addi $sp, $sp, 8
+			beqz $t4, decidir_cima
+			j decidir_baixo
+			
+			decidir_cima: 
+			andi $t3, $t2, 4
+			beqz $t3, decidir_baixo
+			lw $t0, -256($a0)
+			bnez $t0, ver_direita
+			addi $a0, $a0,-256
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, 256($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, cima
+			sw $a0, 12($s2)
+			j fim_movimento
+			
+			decidir_baixo: 
+			andi $t3, $t2, 8 
+			beqz $t3, fim_decisao
+			lw $t0, 4($a0)
+			bnez $t0, ver_baixo
+			addi $a0, $a0,4
+			lw $a2, 0($a0)
+			lw $a3, 8($s2)
+			sw $a1, 0($a0)
+			sw $a3, -4($a0)
+			sw $a0, 4($s2)
+			sw $a2, 8($s2)
+			lw $a0, direita
+			sw $a0, 12($s2)
+			j fim_movimento
+			
+		fim_decisao:
 		j fim_movimento
-
-		
-		calcular_distancia:
-		
-		distancia_cima:
-		andi $t3, $t2, 1
-		srl $t2, $t2, 1
-		beqz $t3, distancia_direita
-		
-		distancia_direita:
-		andi $t3, $t2, 1
-		srl $t2, $t2, 1
-		beqz $t3, distancia_baixo
-		and $t4, $a0, 0x0000ffff
-		srl $t4, $t4,8
-		and $t5, $a0, 0x0ff
-		
-		distancia_baixo:
-		andi $t3, $t2, 1
-		srl $t2, $t2, 1
-		beqz $t3, distancia_esquerda
-		
-		distancia_esquerda:
-		andi $t3, $t2, 1
-		beqz $t3,  fim_distancia
-		
-		fim_distancia:
-		jr $ra
 		
 		seguir_caminho:
 			lw $a3, 12($s2)
 		ver_cima:
 			lw $t0, -256($a0)
-			bnez $t0, ver_direita
+			beq $t0, 0x0ff,ver_direita
 			beq $a3, 's', ver_direita
 			addi $a0, $a0,-256
 			lw $a2, 0($a0)
@@ -798,7 +878,7 @@ direita:	.word 'd'
 			j fim_movimento
 		ver_direita:
 			lw $t0, 4($a0)
-			bnez $t0, ver_baixo
+			beq $t0, 0x0ff,ver_baixo
 			beq $a3, 'a', ver_baixo
 			addi $a0, $a0,4
 			lw $a2, 0($a0)
@@ -812,7 +892,7 @@ direita:	.word 'd'
 			j fim_movimento
 		ver_baixo:
 			lw $t0, 256($a0)
-			bnez $t0, ver_esquerda
+			beq $t0, 0x0ff,ver_esquerda
 			beq $a3, 'w', ver_esquerda
 			addi $a1, $zero, 0x00ff0000
 			addi $a0, $a0, 256
@@ -828,7 +908,7 @@ direita:	.word 'd'
 					
 		ver_esquerda:
 			lw $t0, -4($a0)
-			bnez $t0, end_escolha
+			beq $t0, 0x0ff, end_escolha
 			beq $a3, 'd', end_escolha
 			addi $a1, $zero, 0x00ff0000
 			addi $a0, $a0,-4
@@ -851,7 +931,7 @@ direita:	.word 'd'
 	addi $a2, $zero, 0x00ff0000
 	sw $a1, 4($s2)
 	sw $a0, 0($s2)
-	sw $a2, 0($a1)
+	sw $a2, 0($a1)	
 	lw $a3, esquerda
 	sw $a3, 12($s2)
 	
@@ -865,6 +945,10 @@ direita:	.word 'd'
 	add $s2, $zero, $sp
 	addi $a0, $zero, 0x10010d30
 	sw $a0, 4($sp)
+	li $v0, 40
+	li $a0, 1
+	li $a1, 1
+	syscall
 	pintar_mapa1()
 	pintar_comidas()
 	colocar_pacman()
