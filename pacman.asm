@@ -711,7 +711,7 @@ direita:	.word 'd'
 	lw $a0, 0($s2)
 	beqz $a0, sair_labirinto
 	lw $a0, 4($s2)
-	lw $a2, 0($a0)
+	lw $a2, -4($a0)
 	#jal contar_laterais
 	beq $a2, 0x000000ff, parede
 	jal escolher_direcao
@@ -725,23 +725,23 @@ direita:	.word 'd'
 		add $t0, $zero, $zero
 		checar_cima:
 		lw $t1, -256($a0)
-		bnez $t1, checar_direita
+		bne $t1, 0x000000ff,checar_direita
 		addi $t0, $t0, 1
 		
 		checar_direita:
 		lw $t1, 4($a0)
-		bnez $t1, checar_baixo
+		bne $t1, 0x000000ff,checar_baixo
 		addi $t0, $t0, 1
 		
 		
 		checar_baixo:
 		lw $t1, 256($a0)
-		bnez $t1, checar_esquerda
+		bne $t1, 0x000000ff,checar_esquerda
 		addi $t0, $t0, 1
 		
 		checar_esquerda:
 		lw $t1, -4($a0)
-		bnez $t1, fim_checagem
+		bne $t1,0x000000ff, fim_checagem
 		addi $t0, $t0, 1
 	fim_checagem:
 	jr $ra
@@ -764,6 +764,7 @@ direita:	.word 'd'
 		ver_cima:
 			lw $t0, -256($a0)
 			bnez $t0, ver_direita
+			beq $a3, 's', ver_direita
 			j fim_movimento
 		ver_direita:
 			lw $t0, 4($a0)
@@ -776,12 +777,13 @@ direita:	.word 'd'
 			beq $a3, 'w', ver_esquerda
 			addi $a1, $zero, 0x00ff0000
 			addi $a0, $a0, 256
+			lw $a2, 256($a0)
 			lw $a3, 8($s2)
 			sw $a1, 0($a0)
-			sw $a3, 4($a0)
+			sw $a3, -256($a0)
 			sw $a0, 4($s2)
 			sw $a2, 8($s2)
-			lw $a0, esquerda
+			lw $a0, baixo
 			sw $a0, 12($s2)
 			j fim_movimento
 					
@@ -801,7 +803,6 @@ direita:	.word 'd'
 			j fim_movimento
 		end_escolha:
 		jr $ra
-	
 	
 	sair_labirinto:
 	lw $a1, 4($s2)
@@ -832,7 +833,7 @@ direita:	.word 'd'
 		mover_pacman()
 		mover_vermelho()
 		beq $s1, 114, while
-		li $a0, 500
+		li $a0, 1000
 		li $v0, 32
 		addi $a1, $zero, 0x00ffff00
 		sw $a1, 0($s0)
